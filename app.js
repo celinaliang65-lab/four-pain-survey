@@ -1,4 +1,4 @@
-/* 四大痛點問卷｜網頁程式  v1.7｜2026-11-14（從 LINE 點開時，自動改用手機的 Safari／Chrome 開啟，才能錄音）
+/* 四大痛點問卷｜網頁程式  v1.8｜2026-11-14（錄音上傳時一併送出邀請人、暱稱；v1.7 從 LINE 點開時自動改用 Safari／Chrome）
  * 題目都從 Google 試算表讀取（「痛點設定」「題目設定」「邀請人」分頁），要改題目改試算表就好。
  * 這個檔案只有 API_URL 需要填。
  */
@@ -264,7 +264,7 @@ function upload(key, blob, sec) {
   const p = (async () => {
     const b64 = await new Promise((ok, no) => { const fr = new FileReader(); fr.onload = () => ok(String(fr.result).split(',')[1]); fr.onerror = no; fr.readAsDataURL(blob); });
     for (let i = 0; i < 2; i++) {
-      try { const r = await post({ type: 'audio', rid, key, mime: blob.type, sec, b64 }); if (r.ok) return 'ok'; } catch (_) { }
+      try { const r = await post({ type: 'audio', rid, inviter: st0.inviter, nick: st0.nick, key, mime: blob.type, sec, b64 }); if (r.ok) return 'ok'; } catch (_) { }
     }
     return 'bad';
   })().catch(() => 'bad').then(st => {
