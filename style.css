@@ -1,4 +1,4 @@
-/* 四大痛點問卷｜樣式  v1.0｜2026-11-14
+/* 四大痛點問卷｜樣式  v1.2｜2026-11-14（補回小圖示）
    顏色都集中在最上面 :root，要換色只改這裡 */
 :root{
   --bg:#FFFFFF; --soft:#F6F8FA; --fg:#2B3440; --muted:#5B6B80; --line:#E6EAEE; --line2:#D5DDE5; --ring:#C5CED8;
@@ -27,6 +27,18 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);font-
 h1{margin:4px 0 0;font-size:20px;line-height:1.45;text-wrap:balance}
 h2{margin:0;font-size:18px;line-height:1.5;text-wrap:balance}
 p{margin:0}
+
+/* 小圖示 */
+.hrow{display:flex;align-items:center;gap:12px;margin-top:4px}
+.hrow h1{margin:0;min-width:0}
+.ico[hidden]{display:none}
+.ico{flex:none;width:40px;height:40px;border-radius:11px;background:var(--accent-soft);display:grid;place-items:center}
+.ico.sm{width:30px;height:30px;border-radius:8px}
+.icons{display:flex;justify-content:center;gap:14px;padding-block:6px 2px}
+.ptitle{display:flex;align-items:flex-start;gap:10px}
+.ptitle .t{padding-top:3px}
+.pscore{padding-left:40px}
+.sprout{align-self:center;margin-bottom:-4px}
 
 /* 內容 */
 main{flex:1;padding-top:6px;padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
@@ -114,6 +126,7 @@ textarea:focus{outline:2px solid var(--accent);outline-offset:1px}
 /* 載入／錯誤 */
 .center{padding:60px 0;text-align:center;color:var(--muted)}
 .err{font-size:14px;color:var(--warn);text-align:center;padding:0 0 8px}
+.err.info{color:var(--muted)}
 
 /* 下方固定按鈕：左右各一，一樣大 */
 .foot{position:fixed;left:0;right:0;bottom:0;background:var(--bg);border-top:1px solid var(--line)}
