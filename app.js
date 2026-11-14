@@ -1,4 +1,4 @@
-/* 四大痛點問卷｜網頁程式  v1.0.1｜2026-11-14（已填入部署網址）
+/* 四大痛點問卷｜網頁程式  v1.2｜2026-11-14（補回小圖示；錄音改背景上傳，不用等傳完才能下一步）
  * 題目都從 Google 試算表讀取（「痛點設定」「題目設定」「邀請人」分頁），要改題目改試算表就好。
  * 這個檔案只有 API_URL 需要填。
  */
@@ -22,6 +22,25 @@ const TITLE3 = {
 const IMG = { '天天下廚': 1, '週末才開伙': 2, '會煮但懶得煮': 3, '廚房只是擺設': 4 };
 const MIN_LEN = 10;          // 開放題至少幾個字
 const MAX_REC_SEC = 300;     // 單題錄音上限（秒）
+
+/* ───────── 小圖示（線條風，顏色跟主色） ───────── */
+const ICONS = {
+  person: '<circle cx="12" cy="8" r="3.5"/><path d="M5 20c1-4 4-6 7-6s6 2 7 6"/>',
+  spark: '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 16l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/>',
+  meal: '<path d="M4 12h16a8 7 0 0 1-16 0z"/><path d="M14 3l-3 8M18 4l-4 7"/><path d="M9 21h6"/>',
+  bulk: '<path d="M3 8l9-5 9 5v8l-9 5-9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/>',
+  roll: '<ellipse cx="9" cy="7" rx="5" ry="3"/><path d="M4 7v10c0 1.7 2.2 3 5 3s5-1.3 5-3V7"/><path d="M14 13h6v4h-6"/><circle cx="9" cy="7" r="1"/>',
+  bin: '<path d="M4 7h16M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/><path d="M10 11v5M14 11v5"/>',
+  coin: '<circle cx="12" cy="12" r="8"/><path d="M14.5 9.5c-.5-1-1.5-1.5-2.5-1.5-1.5 0-2.5.8-2.5 2s1 1.7 2.5 2 2.5.8 2.5 2-1 2-2.5 2c-1 0-2-.5-2.5-1.5M12 6.5V8M12 16v1.5"/>',
+  heart: '<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>' };
+const PICON = { 1: 'meal', 2: 'bulk', 3: 'roll', 4: 'bin' };
+const STEP_ICON = { basic: 'person', style: 'spark', rate: 'heart', pick: 'spark', pay: 'coin', done: 'heart' };
+const ico = (n, sz = 22) => `<svg width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n] || ''}</svg>`;
+const SPROUT = `<svg class="sprout" width="96" height="72" viewBox="0 0 96 72" aria-hidden="true">
+  <ellipse cx="48" cy="64" rx="30" ry="5" fill="var(--accent-soft)"/>
+  <path d="M48 63 C48 50 47 40 48 30" stroke="var(--accent)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <path d="M48 40 C40 40 30 36 26 26 C36 24 46 28 48 40 Z" fill="var(--accent)" opacity=".55"/>
+  <path d="M48 32 C54 30 64 22 68 12 C58 10 48 18 48 32 Z" fill="var(--accent)" opacity=".85"/></svg>`;
 
 /* ───────── 狀態 ───────── */
 const STEPS = ['intro', 'basic', 'style', 'rate', 'pick', 'deep0', 'deep1', 'pay', 'done'];
@@ -47,7 +66,7 @@ const br = s => esc(s).replace(/\n/g, '<br>');
 const pain = id => CFG.pains.find(p => p.id === id);
 const score = id => (S.rate[id] || {}).s || 0;
 const noSpend = v => /^(沒|無|不曾|從來沒|從沒)/.test(String(v || '').trim());
-const fail = msg => { const e = $('err'); e.textContent = msg; e.hidden = false; };
+const fail = msg => { const e = $('err'); e.textContent = msg; e.className = 'err'; e.hidden = false; };
 const mark = (q, multi) => multi > 1 ? (multi >= 9 ? '（可複選）' : `（選 ${multi} 個）`) : '';
 const sel = (k, o) => Array.isArray(S.basic[k]) ? S.basic[k].includes(o) : S.basic[k] === o;
 
@@ -86,11 +105,14 @@ function render() {
   if (s === 'deep0' || s === 'deep1') title = `${s === 'deep0' ? '第一件' : '第二件'}：${pain(S.pick[s === 'deep0' ? 0 : 1]).title}`;
   if (s === 'done') title = `謝謝你的分享，${S.nick}！`;
   $('title').textContent = title;
+  const hi = (s === 'deep0' || s === 'deep1') ? PICON[S.pick[s === 'deep0' ? 0 : 1]] : STEP_ICON[s];
+  $('hico').innerHTML = hi ? ico(hi) : ''; $('hico').hidden = !hi;
 
   if (s === 'intro') {
     const fixed = CFG.members.includes(byParam);
     if (fixed) S.inviter = byParam;
     view.innerHTML = `<div class="intro">
+      <div class="icons">${['meal', 'bulk', 'roll', 'bin'].map(n => `<span class="ico">${ico(n, 24)}</span>`).join('')}</div>
       <p>我們是輔大商管（二）產業創新課的小組，想了解大家在生活中遇到的小麻煩，作為期末專題的研究資料。</p>
       <ol class="flow"><li>基本資料與生活風格小測驗，最後送你一張生活人格卡</li><li>幫四件生活小事評分，選出最困擾的兩件</li><li>聽我們提問，用講的或打字聊聊這兩件事</li></ol>
       <p class="muted">約 10～12 分鐘。</p>
@@ -107,7 +129,7 @@ function render() {
   if (s === 'style') view.innerHTML = `<p class="muted" style="padding-top:12px">憑直覺選，沒有對錯，最後會送你一張生活人格卡。</p>` + qBlock(CFG.style);
   if (s === 'rate') view.innerHTML = S.order.map(id => {
     const p = pain(id), r = S.rate[id] || {};
-    return `<div class="box" id="box-${id}"><span class="t ptext">${esc(p.text)}</span>
+    return `<div class="box" id="box-${id}"><div class="ptitle"><span class="ico sm">${ico(PICON[id], 18)}</span><span class="t ptext">${esc(p.text)}</span></div>
       <div class="line"><span>困擾程度</span><div><div class="seg">${[1, 2, 3, 4, 5].map(v => `<button data-rs="${id}" data-v="${v}" aria-pressed="${r.s === v}">${v}</button>`).join('')}</div>
         <div class="ends"><span>完全不困擾</span><span>非常困擾</span></div></div></div>
       <div class="line"><span>發生頻率</span><div class="seg sm">${FREQ.map(f => `<button data-rf="${id}" data-v="${f}" aria-pressed="${r.f === f}">${f}</button>`).join('')}</div></div>
@@ -115,8 +137,8 @@ function render() {
   }).join('');
   if (s === 'pick') {
     if (!S.pick.length) S.pick = S.order.slice().sort((a, b) => score(b) - score(a)).slice(0, 2);
-    view.innerHTML = `<div class="intro"><h2>原來這兩件事，也是讓你感到特別困擾的問題呢！</h2><p>你最在意的兩個問題是：</p>` +
-      S.pick.map(id => `<div class="pick"><span class="t">${esc(pain(id).text)}</span><span class="muted">困擾程度 ${score(id)}／5</span></div>`).join('') +
+    view.innerHTML = `<div class="intro">${SPROUT}<h2>原來這兩件事，也是讓你感到特別困擾的問題呢！</h2><p>你最在意的兩個問題是：</p>` +
+      S.pick.map(id => `<div class="pick"><div class="ptitle"><span class="ico sm">${ico(PICON[id], 18)}</span><span class="t">${esc(pain(id).text)}</span></div><span class="muted pscore">困擾程度 ${score(id)}／5</span></div>`).join('') +
       `<p>接下來，想再和你聊聊幾個相關的小問題，沒有標準答案喔！只要依照自己的實際情況和真實想法，自然地分享就好～</p></div>`;
   }
   if (s === 'deep0' || s === 'deep1') {
@@ -190,22 +212,27 @@ function recLabel(key) { return R && R.key === key ? '■ 停止錄音' : (S.rec
 function recStatus(key) {
   const r = S.rec[key]; if (R && R.key === key) return '錄音中 0:00';
   if (!r) return '';
-  return r.st === 'up' ? '上傳中…' : r.st === 'ok' ? `已收到你的錄音（${fmt(r.sec)}）` : '上傳失敗，請再錄一次或改用打字';
+  return r.st === 'up' ? '上傳中…（可以繼續作答）' : r.st === 'ok' ? `已收到你的錄音（${fmt(r.sec)}）` : '上傳失敗，請按「重錄」或改用打字';
 }
 function paintRec(key) {
   const b = document.querySelector(`[data-rec="${key}"]`), st = $('rst-' + key);
   if (b) { b.textContent = recLabel(key); b.classList.toggle('rec', !!(R && R.key === key)); }
   if (st) { st.textContent = recStatus(key); const r = S.rec[key]; st.className = 'recst' + (r && r.st === 'ok' ? ' ok' : r && r.st === 'bad' ? ' bad' : ''); }
+  const need = $('need-' + key); if (need && S.rec[key] && S.rec[key].st !== 'bad') need.hidden = true;
 }
+// 停止目前的錄音；回傳的 Promise 在錄音檔交給上傳後才完成
+function stopRec() { if (!R) return Promise.resolve(); const me = R; return new Promise(ok => { me.done = ok; me.mr.stop(); }); }
 async function toggleRec(key) {
-  if (R && R.key === key) return R.mr.stop();
-  if (R) R.mr.stop();                      // 另一題還在錄 → 先停掉並上傳
+  if (R && R.key === key) return stopRec();
+  if (R) await stopRec();                  // 另一題還在錄 → 先停掉並上傳
   if (!navigator.mediaDevices || !window.MediaRecorder) return fail('這個瀏覽器不支援錄音，請改用打字回答');
   let stream;
   try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
   catch (_) { return fail('沒有取得麥克風權限，請改用打字回答（或到瀏覽器設定允許麥克風）'); }
   const mime = ['audio/webm;codecs=opus', 'audio/mp4', 'audio/webm', 'audio/ogg'].find(m => MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(m)) || '';
-  const mr = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
+  let mr;   // 32kbps：人聲夠清楚，檔案只有預設的 1/4，上傳快很多
+  try { mr = new MediaRecorder(stream, Object.assign({ audioBitsPerSecond: 32000 }, mime ? { mimeType: mime } : {})); }
+  catch (_) { mr = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined); }
   const chunks = [];
   const me = { key, mr, stream, t0: Date.now() };
   mr.ondataavailable = e => e.data.size && chunks.push(e.data);
@@ -214,6 +241,7 @@ async function toggleRec(key) {
     const sec = Math.round((Date.now() - me.t0) / 1000);
     if (R === me) R = null;
     upload(key, new Blob(chunks, { type: mr.mimeType || mime || 'audio/webm' }), sec);
+    if (me.done) me.done();
   };
   R = me; mr.start(1000); paintRec(key);
   me.timer = setInterval(() => {
@@ -222,18 +250,19 @@ async function toggleRec(key) {
     if (sec >= MAX_REC_SEC) mr.stop();
   }, 500);
 }
+// 背景上傳：不用等傳完就能繼續作答；失敗自動重試一次；送出時才統一等全部傳完
 function upload(key, blob, sec) {
-  S.rec[key] = { st: 'up', sec }; paintRec(key);
-  const fr = new FileReader();
-  fr.onload = async () => {
-    try {
-      const r = await post({ type: 'audio', rid: S.rid, key, mime: blob.type, sec, b64: String(fr.result).split(',')[1] });
-      S.rec[key] = { st: r.ok ? 'ok' : 'bad', sec };
-    } catch (_) { S.rec[key] = { st: 'bad', sec }; }
-    paintRec(key);
-    const need = $('need-' + key); if (need && S.rec[key].st === 'ok') need.hidden = true;
-  };
-  fr.readAsDataURL(blob);
+  const st0 = S, rid = S.rid;
+  const p = (async () => {
+    const b64 = await new Promise((ok, no) => { const fr = new FileReader(); fr.onload = () => ok(String(fr.result).split(',')[1]); fr.onerror = no; fr.readAsDataURL(blob); });
+    for (let i = 0; i < 2; i++) {
+      try { const r = await post({ type: 'audio', rid, key, mime: blob.type, sec, b64 }); if (r.ok) return 'ok'; } catch (_) { }
+    }
+    return 'bad';
+  })().catch(() => 'bad').then(st => {
+    if (S === st0 && S.rec[key] && S.rec[key].p === p) { S.rec[key] = { st, sec }; paintRec(key); }
+  });
+  S.rec[key] = { st: 'up', sec, p }; paintRec(key);
 }
 async function post(data) {
   const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(data) });   // text/plain，不會觸發跨網域預檢
@@ -245,7 +274,7 @@ function checkOpen(keys) {
   let bad = null;
   keys.forEach(k => {
     const el = $('need-' + k); if (!el) return;
-    const v = String(S.answers[k] || '').trim(), hasRec = S.rec[k] && S.rec[k].st === 'ok';
+    const v = String(S.answers[k] || '').trim(), hasRec = S.rec[k] && S.rec[k].st !== 'bad';
     const short = !hasRec && v.length < MIN_LEN;
     el.hidden = !short;
     if (short) { el.textContent = v ? `再多說一點吧！可以補充當時的情況、你的感受或想法（至少 ${MIN_LEN} 個字）` : '這題還沒回答喔，說說你的經驗吧！'; bad = bad || k; }
@@ -259,10 +288,10 @@ function checkChoice(list) {
   if (miss.length) { $('q-' + miss[0].code).scrollIntoView({ block: 'center', behavior: 'smooth' }); fail('還有題目沒選喔（標成紅字的題目）'); }
   return !miss.length;
 }
-const uploading = () => Object.values(S.rec).some(r => r.st === 'up') || R;
 
 $('next').onclick = async () => {
   const s = STEPS[S.step];
+  if (R) await stopRec();                  // 還在錄音就先停止（自動開始上傳）
   if (s === 'intro') {
     if (!S.inviter) { fail('請選擇是誰邀請你填寫的'); return; }
     if (!S.joinOK) { fail('請先勾選「我同意參與這份問卷」'); return; }
@@ -279,12 +308,10 @@ $('next').onclick = async () => {
     if (miss.length) { $('box-' + miss[0]).scrollIntoView({ block: 'center', behavior: 'smooth' }); fail('每一件小事都要選困擾程度和發生頻率'); return; }
   }
   if (s === 'deep0' || s === 'deep1') {
-    if (uploading()) { fail('錄音還在進行或上傳中，請稍等一下'); return; }
     if (!checkOpen(pain(S.pick[s === 'deep0' ? 0 : 1]).qs.map(q => q.code))) return;
   }
   if (s === 'pay') {
-    if (uploading()) { fail('錄音還在進行或上傳中，請稍等一下'); return; }
-    const v = String(S.answers.F1a || '').trim(), hasRec = S.rec.F1a && S.rec.F1a.st === 'ok', el = $('need-F1a');
+    const v = String(S.answers.F1a || '').trim(), hasRec = S.rec.F1a && S.rec.F1a.st !== 'bad', el = $('need-F1a');
     el.hidden = !!(v || hasRec);
     if (!v && !hasRec) { el.textContent = '這題還沒回答喔（沒有花過就寫「沒有」）'; fail('還有題目沒回答喔'); return; }
     if (noSpend(v)) { delete S.answers.F1b; } else if (!checkOpen(['F1b'])) return;
@@ -295,8 +322,28 @@ $('next').onclick = async () => {
 };
 $('back').onclick = () => { if (R) R.mr.stop(); S.step--; render(); window.scrollTo(0, 0); };
 
+// 錄音沒傳成功、也沒打字的題目 → 帶回那一頁
+function recFailed() {
+  const bad = Object.keys(S.rec).filter(k => S.rec[k].st === 'bad' && String(S.answers[k] || '').trim().length < (k === 'F1a' ? 1 : MIN_LEN));
+  if (!bad.length) return false;
+  const k = bad[0], pid = Number(k.split('-')[0]);
+  S.step = /^F1/.test(k) ? STEPS.indexOf('pay') : STEPS.indexOf(S.pick[0] === pid ? 'deep0' : 'deep1');
+  render(); fail(`這一題的錄音沒有傳成功，請按「重錄」或改用打字（${k}）`);
+  const el = $('blk-' + k); if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  return true;
+}
 async function submit() {
   const btn = $('next'); btn.disabled = true; btn.textContent = '送出中…';
+  $('back').disabled = true;
+  let pend;
+  while ((pend = Object.values(S.rec).filter(r => r.st === 'up')).length) {   // 等背景錄音全部傳完
+    btn.textContent = '上傳中…';
+    const e = $('err'); e.textContent = `錄音上傳中，還剩 ${pend.length} 段，請先不要關閉頁面`; e.className = 'err info'; e.hidden = false;
+    await Promise.all(pend.map(r => r.p));
+  }
+  $('back').disabled = false; $('err').hidden = true;
+  if (recFailed()) return;
+  btn.textContent = '送出中…';
   const answers = Object.fromEntries(Object.entries(S.answers).filter(([, v]) => String(v).trim()));
   const rec = Object.fromEntries(Object.entries(S.rec).filter(([, r]) => r.st === 'ok').map(([k]) => [k, true]));
   try {
