@@ -1,7 +1,12 @@
-/* 四大痛點問卷｜網頁程式  v1.6｜2026-11-14（花費題 F1a、F1b 不限字數，有填就好）
+/* 四大痛點問卷｜網頁程式  v1.7｜2026-11-14（從 LINE 點開時，自動改用手機的 Safari／Chrome 開啟，才能錄音）
  * 題目都從 Google 試算表讀取（「痛點設定」「題目設定」「邀請人」分頁），要改題目改試算表就好。
  * 這個檔案只有 API_URL 需要填。
  */
+
+// 從 LINE 聊天室點開時，LINE 內建瀏覽器常常不能錄音 → 加上 openExternalBrowser=1，LINE 會自動改用手機預設瀏覽器開啟
+if (/\bLine\//i.test(navigator.userAgent) && !/openExternalBrowser=1/.test(location.search)) {
+  location.replace(location.pathname + (location.search ? location.search + '&' : '?') + 'openExternalBrowser=1' + location.hash);
+}
 
 // ★ 部署 Apps Script 後，把「網頁應用程式網址」貼在這裡（結尾是 /exec）
 const API_URL = 'https://script.google.com/macros/s/AKfycbxVDLUlpv_0aw1N6e99PwTAbAFreboHMK2NrShyCiIEgSfpKIZldubvyq4FBcAuhYbx/exec';
