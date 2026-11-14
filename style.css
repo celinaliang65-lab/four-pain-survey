@@ -1,7 +1,7 @@
-/* 四大痛點問卷｜樣式  v1.2｜2026-11-14（補回小圖示）
+/* 四大痛點問卷｜樣式  v1.4｜2026-11-14（文字改黑灰色、加深）
    顏色都集中在最上面 :root，要換色只改這裡 */
 :root{
-  --bg:#FFFFFF; --soft:#F6F8FA; --fg:#2B3440; --muted:#5B6B80; --line:#E6EAEE; --line2:#D5DDE5; --ring:#C5CED8;
+  --bg:#FFFFFF; --soft:#F6F8FA; --fg:#1F2329; --muted:#3F4650; --line:#E6EAEE; --line2:#D5DDE5; --ring:#C5CED8;
   --accent:#5F7A92; --accent-soft:#EEF2F6; --accent-fg:#FFFFFF; --warn:#8A3B2E; --warn-soft:#F6E7E4;
   --font:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
 }
@@ -67,6 +67,9 @@ main{flex:1;padding-top:6px;padding-bottom:calc(96px + env(safe-area-inset-botto
 /* 清單式選項（圓圈單選、方框複選），可排 2 或 3 欄 */
 .grid{display:grid;grid-template-columns:repeat(var(--cols,2),minmax(0,1fr));gap:2px 8px}
 .grid.c3{gap:2px 4px}
+/* 邀請人：一列三個，欄寬依名字長短（字多的「他人分享連結」和徐薇同一欄） */
+.grid.inv{grid-template-columns:repeat(3,max-content);justify-content:space-between;gap:2px 4px}
+.grid.inv .opt{padding:8px 6px;gap:7px;white-space:nowrap}
 .opt{display:flex;align-items:center;gap:10px;padding:8px 10px;border:0;border-radius:10px;background:transparent;color:var(--fg);font:inherit;font-size:15px;text-align:left;cursor:pointer;min-height:42px;min-width:0}
 .grid.c3 .opt{padding:8px 6px;gap:7px;white-space:nowrap}
 .opt .c{width:18px;height:18px;border-radius:50%;border:2px solid var(--ring);flex:none}
@@ -78,7 +81,7 @@ main{flex:1;padding-top:6px;padding-bottom:calc(96px + env(safe-area-inset-botto
 /* 首頁 */
 .intro{display:flex;flex-direction:column;gap:12px;padding-top:12px}
 .flow{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:4px}
-.terms{margin:0;padding-left:1.2em;font-size:14px;color:var(--muted)}
+.terms{margin:0;padding-left:1.2em;font-size:15px;color:var(--fg)}
 .consent{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line2);border-radius:10px;padding:10px 12px;cursor:pointer;background:var(--bg);color:var(--fg);font:inherit;font-size:15px;text-align:left}
 .consent .ck{flex:none;width:20px;height:20px;border:2px solid var(--ring);border-radius:5px;margin-top:2px}
 .consent[aria-pressed="true"]{border-color:var(--accent)}

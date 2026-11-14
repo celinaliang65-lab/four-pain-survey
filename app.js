@@ -1,4 +1,4 @@
-/* 四大痛點問卷｜網頁程式  v1.2｜2026-11-14（補回小圖示；錄音改背景上傳，不用等傳完才能下一步）
+/* 四大痛點問卷｜網頁程式  v1.3｜2026-11-14（首頁文字改版；邀請人改一列三個）
  * 題目都從 Google 試算表讀取（「痛點設定」「題目設定」「邀請人」分頁），要改題目改試算表就好。
  * 這個檔案只有 API_URL 需要填。
  */
@@ -113,12 +113,14 @@ function render() {
     if (fixed) S.inviter = byParam;
     view.innerHTML = `<div class="intro">
       <div class="icons">${['meal', 'bulk', 'roll', 'bin'].map(n => `<span class="ico">${ico(n, 24)}</span>`).join('')}</div>
-      <p>我們是輔大商管（二）產業創新課的小組，想了解大家在生活中遇到的小麻煩，作為期末專題的研究資料。</p>
-      <ol class="flow"><li>基本資料與生活風格小測驗，最後送你一張生活人格卡</li><li>幫四件生活小事評分，選出最困擾的兩件</li><li>聽我們提問，用講的或打字聊聊這兩件事</li></ol>
-      <p class="muted">約 10～12 分鐘。</p>
-      <ul class="terms"><li>資料只用於本課程的期末專題，僅組員與授課老師可以看到</li>
-        <li>錄音會整理成文字後匿名分析，學期結束後刪除</li><li>不想錄音可以全部用打字回答</li></ul>
-      ${fixed ? '' : `<div class="q" id="q-inv"><span class="t">請問是誰邀請你填寫這份問卷？</span><div class="grid" style="--cols:2">${
+      <p>Hi，我們是輔大商管（二）產業創新課程小組，想邀請你分享生活中的小困擾，讓我們更了解大家的日常需求，作為期末專題的研究參考。</p>
+      <p class="t">一起花 10～12 分鐘聊聊：</p>
+      <ol class="flow"><li>填寫基本資料與生活風格測驗，獲得專屬生活人格卡。</li><li>為四件生活小事評分，選出最困擾你的兩件。</li><li>和我們聊聊你的真實經驗，可以語音或打字分享。</li></ol>
+      <p class="t">關於你的分享：</p>
+      <ul class="terms"><li>資料僅供本課程專題使用，只有組員與老師可以查看。</li>
+        <li>錄音將匿名整理分析，學期結束後刪除。</li><li>不方便錄音也沒關係，全程都可以打字回答。</li></ul>
+      <p>謝謝你撥出時間，讓我們一起發現生活中的小問題！</p>
+      ${fixed ? '' : `<div class="q" id="q-inv"><span class="t">請問是誰邀請你填寫這份問卷？</span><div class="grid inv">${
         CFG.members.concat(OTHER_INVITER).map(m => `<button class="opt" data-inv="${esc(m)}" aria-pressed="${S.inviter === m}"><span class="c"></span>${esc(m)}</button>`).join('')}</div></div>`}
       <button class="consent" id="joinOK" aria-pressed="${S.joinOK}"><span class="ck"></span><span>我同意參與這份問卷（必選）</span></button>
       <button class="consent" id="recOK" aria-pressed="${S.recOK}"><span class="ck"></span><span>我同意錄音，並供上述研究使用（不勾選也可以，改用打字回答）</span></button>
