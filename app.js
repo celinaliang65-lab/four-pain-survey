@@ -1,4 +1,4 @@
-/* 四大痛點問卷｜網頁程式  v1.3｜2026-11-14（首頁文字改版；邀請人改一列三個）
+/* 四大痛點問卷｜網頁程式  v1.5｜2026-11-14（首頁說明加註錄音由 Google AI 轉文字）
  * 題目都從 Google 試算表讀取（「痛點設定」「題目設定」「邀請人」分頁），要改題目改試算表就好。
  * 這個檔案只有 API_URL 需要填。
  */
@@ -118,7 +118,7 @@ function render() {
       <ol class="flow"><li>填寫基本資料與生活風格測驗，獲得專屬生活人格卡。</li><li>為四件生活小事評分，選出最困擾你的兩件。</li><li>和我們聊聊你的真實經驗，可以語音或打字分享。</li></ol>
       <p class="t">關於你的分享：</p>
       <ul class="terms"><li>資料僅供本課程專題使用，只有組員與老師可以查看。</li>
-        <li>錄音將匿名整理分析，學期結束後刪除。</li><li>不方便錄音也沒關係，全程都可以打字回答。</li></ul>
+        <li>錄音會由 Google AI 轉成文字，再匿名整理分析，學期結束後刪除。</li><li>不方便錄音也沒關係，全程都可以打字回答。</li></ul>
       <p>謝謝你撥出時間，讓我們一起發現生活中的小問題！</p>
       ${fixed ? '' : `<div class="q" id="q-inv"><span class="t">請問是誰邀請你填寫這份問卷？</span><div class="grid inv">${
         CFG.members.concat(OTHER_INVITER).map(m => `<button class="opt" data-inv="${esc(m)}" aria-pressed="${S.inviter === m}"><span class="c"></span>${esc(m)}</button>`).join('')}</div></div>`}
