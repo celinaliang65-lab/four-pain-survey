@@ -1,4 +1,4 @@
-/* 四大痛點問卷｜網頁程式  v1.5｜2026-11-14（首頁說明加註錄音由 Google AI 轉文字）
+/* 四大痛點問卷｜網頁程式  v1.6｜2026-11-14（花費題 F1a、F1b 不限字數，有填就好）
  * 題目都從 Google 試算表讀取（「痛點設定」「題目設定」「邀請人」分頁），要改題目改試算表就好。
  * 這個檔案只有 API_URL 需要填。
  */
@@ -21,6 +21,7 @@ const TITLE3 = {
   '廚房只是擺設': ['外食探險家', '巷口每一家店都熟，廚房主要用來燒開水'] };
 const IMG = { '天天下廚': 1, '週末才開伙': 2, '會煮但懶得煮': 3, '廚房只是擺設': 4 };
 const MIN_LEN = 10;          // 開放題至少幾個字
+const minLen = k => (k === 'F1a' || k === 'F1b') ? 1 : MIN_LEN;   // 花費兩題不限字數，有填就好
 const MAX_REC_SEC = 300;     // 單題錄音上限（秒）
 
 /* ───────── 小圖示（線條風，顏色跟主色） ───────── */
@@ -203,7 +204,7 @@ view.addEventListener('input', e => {
   const k = e.target.dataset.key;
   if (k) {
     S.answers[k] = e.target.value; if (k === 'F1a') syncSpend();
-    const need = $('need-' + k); if (need && e.target.value.trim().length >= (k === 'F1a' ? 1 : MIN_LEN)) need.hidden = true;
+    const need = $('need-' + k); if (need && e.target.value.trim().length >= minLen(k)) need.hidden = true;
   }
 });
 
@@ -277,7 +278,7 @@ function checkOpen(keys) {
   keys.forEach(k => {
     const el = $('need-' + k); if (!el) return;
     const v = String(S.answers[k] || '').trim(), hasRec = S.rec[k] && S.rec[k].st !== 'bad';
-    const short = !hasRec && v.length < MIN_LEN;
+    const short = !hasRec && v.length < minLen(k);
     el.hidden = !short;
     if (short) { el.textContent = v ? `再多說一點吧！可以補充當時的情況、你的感受或想法（至少 ${MIN_LEN} 個字）` : '這題還沒回答喔，說說你的經驗吧！'; bad = bad || k; }
   });
@@ -326,7 +327,7 @@ $('back').onclick = () => { if (R) R.mr.stop(); S.step--; render(); window.scrol
 
 // 錄音沒傳成功、也沒打字的題目 → 帶回那一頁
 function recFailed() {
-  const bad = Object.keys(S.rec).filter(k => S.rec[k].st === 'bad' && String(S.answers[k] || '').trim().length < (k === 'F1a' ? 1 : MIN_LEN));
+  const bad = Object.keys(S.rec).filter(k => S.rec[k].st === 'bad' && String(S.answers[k] || '').trim().length < minLen(k));
   if (!bad.length) return false;
   const k = bad[0], pid = Number(k.split('-')[0]);
   S.step = /^F1/.test(k) ? STEPS.indexOf('pay') : STEPS.indexOf(S.pick[0] === pid ? 'deep0' : 'deep1');
